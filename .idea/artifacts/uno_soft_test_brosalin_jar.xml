@@ -2,9 +2,6 @@
   <artifact type="jar" name="uno-soft-test-brosalin:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/uno_soft_test_brosalin_jar</output-path>
     <root id="archive" name="uno-soft-test-brosalin.jar">
-      <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
-      </element>
       <element id="module-output" name="uno-soft-test-brosalin" />
     </root>
   </artifact>

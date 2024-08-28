@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class StringGroupFinder {
-    private List<long[]> linesAsArrays;
+    private List<double[]> linesAsArrays;
     private Map<Key, List<Integer>> positionsMap;
     UnionFind unionFind;
 
@@ -21,7 +21,7 @@ public class StringGroupFinder {
                 String stringOfNumbers = bufferReader.readLine();
                 unionFind.addNewElement();
                 String[] arrayOfStringNumbers = stringOfNumbers.split(";");
-                long[] arrayOfNumbers = new long[arrayOfStringNumbers.length];
+                double[] arrayOfNumbers = new double[arrayOfStringNumbers.length];
 
                 for (int i = 0; i < arrayOfStringNumbers.length; i++) {
                     if (arrayOfStringNumbers[i].startsWith("\"") && arrayOfStringNumbers[i].endsWith("\"")) {
@@ -32,7 +32,7 @@ public class StringGroupFinder {
                     }
 
                     if (!arrayOfStringNumbers[i].isEmpty()) {
-                        arrayOfNumbers[i] = Long.parseLong(arrayOfStringNumbers[i]);
+                        arrayOfNumbers[i] = Double.parseDouble(arrayOfStringNumbers[i]);
                         Key key = new Key (arrayOfNumbers[i], i);
                         if (positionsMap.containsKey(key)) {
                             for (int index : positionsMap.get(key)) {
@@ -73,10 +73,10 @@ public class StringGroupFinder {
         }
     }
     class Key {
-        private final long number;
+        private final double number;
         private final int position;
 
-        public Key(long number, int position) {
+        public Key(double number, int position) {
             this.number = number;
             this.position = position;
         }
@@ -95,14 +95,16 @@ public class StringGroupFinder {
         }
     }
 
-    private String getLineFromArray(long[] lineAsArray) {
+    private String getLineFromArray(double[] lineAsArray) {
         StringBuilder stringOfNumbers = new StringBuilder();
-        for (long number : lineAsArray) {
+        for (double number : lineAsArray) {
             stringOfNumbers.append("\"");
-            if (number != 0) stringOfNumbers.append(number);
+            if (number != 0) stringOfNumbers.append(String.format("%.17f", number).replaceAll("0+$", ""));
+            if (stringOfNumbers.substring(stringOfNumbers.length() - 1, stringOfNumbers.length()).equals(",")) {
+                stringOfNumbers.deleteCharAt(stringOfNumbers.length() - 1);
+            }
             stringOfNumbers.append("\";");
         }
-        stringOfNumbers.deleteCharAt(stringOfNumbers.length() - 1);
         return stringOfNumbers.toString();
     }
 }
