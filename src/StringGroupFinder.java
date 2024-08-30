@@ -1,17 +1,17 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class StringGroupFinder {
-    private List<double[]> linesAsArrays;
-    private Map<Key, List<Integer>> positionsMap;
-    UnionFind unionFind;
+    private final List<double[]> linesAsArrays;
+    private final Map<Key, List<Integer>> positionsMap;
+    private final UnionFind unionFind;
+    private final Map<Integer, Set<String>> finalGroups;
 
     public StringGroupFinder() {
         linesAsArrays = new ArrayList<>();
         positionsMap = new HashMap<>();
         unionFind = new UnionFind();
+        finalGroups = new HashMap<>();
     }
 
     public void readFile(String inputFileName) {
@@ -33,46 +33,50 @@ public class StringGroupFinder {
 
                     if (!arrayOfStringNumbers[i].isEmpty()) {
                         arrayOfNumbers[i] = Double.parseDouble(arrayOfStringNumbers[i]);
-                        Key key = new Key (arrayOfNumbers[i], i);
+                        Key key = new Key(arrayOfNumbers[i], i);
                         if (positionsMap.containsKey(key)) {
-                            for (int index : positionsMap.get(key)) {
-                                unionFind.union(currentIndex, index);
-                            }
+                            unionFind.union(currentIndex, positionsMap.get(key).get(0));
+                        } else {
+                            positionsMap.put(key, new ArrayList<>());
                         }
-                        positionsMap.computeIfAbsent(key, k -> new ArrayList<>()).add(currentIndex);
+                        positionsMap.get(key).add(currentIndex);
                     }
                 }
                 linesAsArrays.add(arrayOfNumbers);
                 currentIndex++;
-
             }
             positionsMap.clear();
 
-            Map<Integer, List<String>> finalGroups = new HashMap<>();
+
             for (int i = 0; i < linesAsArrays.size(); i++) {
                 int root = unionFind.findRoot(i);
-                finalGroups.putIfAbsent(root, new ArrayList<>());
-                finalGroups.get(root).add(getLineFromArray(linesAsArrays.get(i)));
+                finalGroups.putIfAbsent(root, new HashSet<>());
+                String s = getLineFromArray(linesAsArrays.get(i));
+                finalGroups.get(root).add(s);
             }
 
-            List<List<String>> sortedGroups = new ArrayList<>(finalGroups.values());
+            List<Set<String>> sortedGroups = new ArrayList<>(finalGroups.values());
             sortedGroups.removeIf(group -> group.size() <= 1);
             sortedGroups.sort((g1, g2) -> Integer.compare(g2.size(), g1.size()));
 
-            System.out.println("Всего групп с более чем одним элементом: " + sortedGroups.size());
-            int groupId = 1;
-            for (List<String> entry : sortedGroups) {
-                System.out.println("Группа " + groupId++);
-                for (String string : entry) {
-                    System.out.println(string);
+            try (Writer fileWriter = new FileWriter("outputFile.txt")) {
+                fileWriter.write("Всего групп с более чем одним элементом: " + sortedGroups.size() + "\n");
+                int groupId = 1;
+                for (Set<String> entry : sortedGroups) {
+                    fileWriter.write("Группа " + groupId++ + "\n");
+                    for (String string : entry) {
+                        fileWriter.write(string + "\n");
+                    }
+                    fileWriter.write("\n");
                 }
-                System.out.println();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    class Key {
+    static class Key {
         private final double number;
         private final int position;
 
